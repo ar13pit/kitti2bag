@@ -82,7 +82,7 @@ def save_dynamic_tf(bag, kitti, kitti_type, initial_time):
             tf_stamped.header.stamp = rospy.Time.from_sec(timestamp)
             tf_stamped.header.frame_id = 'world'
             tf_stamped.child_frame_id = 'camera_left'
-            
+
             t = tf_matrix[0:3, 3]
             q = tf.transformations.quaternion_from_matrix(tf_matrix)
             transform = Transform()
@@ -100,8 +100,8 @@ def save_dynamic_tf(bag, kitti, kitti_type, initial_time):
             tf_msg.transforms.append(tf_stamped)
 
             bag.write('/tf', tf_msg, tf_msg.transforms[0].header.stamp)
-          
-        
+
+
 def save_camera_data(bag, kitti_type, kitti, util, bridge, camera, camera_frame_id, topic, initial_time):
     print("Exporting camera {}".format(camera))
     if kitti_type.find("raw") != -1:
@@ -111,7 +111,7 @@ def save_camera_data(bag, kitti_type, kitti, util, bridge, camera, camera_frame_
         image_filenames = sorted(os.listdir(image_path))
         with open(os.path.join(image_dir, 'timestamps.txt')) as f:
             image_datetimes = map(lambda x: datetime.strptime(x[:-4], '%Y-%m-%d %H:%M:%S.%f'), f.readlines())
-        
+
         calib = CameraInfo()
         calib.header.frame_id = camera_frame_id
         calib.width, calib.height = tuple(util['S_rect_{}'.format(camera_pad)].tolist())
@@ -120,17 +120,17 @@ def save_camera_data(bag, kitti_type, kitti, util, bridge, camera, camera_frame_
         calib.R = util['R_rect_{}'.format(camera_pad)]
         calib.D = util['D_{}'.format(camera_pad)]
         calib.P = util['P_rect_{}'.format(camera_pad)]
-            
+
     elif kitti_type.find("odom") != -1:
         camera_pad = '{0:01d}'.format(camera)
         image_path = os.path.join(kitti.sequence_path, 'image_{}'.format(camera_pad))
         image_filenames = sorted(os.listdir(image_path))
         image_datetimes = map(lambda x: initial_time + x.total_seconds(), kitti.timestamps)
-        
+
         calib = CameraInfo()
         calib.header.frame_id = camera_frame_id
         calib.P = util['P{}'.format(camera_pad)]
-    
+
     iterable = zip(image_datetimes, image_filenames)
     bar = progressbar.ProgressBar()
     for dt, filename in bar(iterable):
@@ -151,7 +151,7 @@ def save_camera_data(bag, kitti_type, kitti, util, bridge, camera, camera_frame_
         calib.header.stamp = image_message.header.stamp
         bag.write(topic + topic_ext, image_message, t = image_message.header.stamp)
         bag.write(topic + '/camera_info', calib, t = calib.header.stamp) 
-        
+
 def save_velo_data(bag, kitti, velo_frame_id, topic):
     print("Exporting velodyne data")
     velo_path = os.path.join(kitti.data_path, 'velodyne_points')
@@ -259,14 +259,14 @@ def save_gps_vel_data(bag, kitti, gps_frame_id, topic):
 
 
 def main():
-    
+
     parser = argparse.ArgumentParser(description = "Convert KITTI dataset to ROS bag file the easy way!")
     # Accepted argument values
     kitti_types = ["raw_synced", "odom_color", "odom_gray"]
     odometry_sequences = []
     for s in range(22):
         odometry_sequences.append(str(s).zfill(2))
-    
+
     parser.add_argument("kitti_type", choices = kitti_types, help = "KITTI dataset type")
     parser.add_argument("dir", nargs = "?", default = os.getcwd(), help = "base directory of the dataset, if no directory passed the deafult is current working directory")
     parser.add_argument("-t", "--date", help = "date of the raw dataset (i.e. 2011_09_26), option is only for RAW datasets.")
@@ -278,7 +278,7 @@ def main():
     compression = rosbag.Compression.NONE
     # compression = rosbag.Compression.BZ2
     # compression = rosbag.Compression.LZ4
-    
+
     # CAMERAS
     cameras = [
         (0, 'camera_gray_left', '/kitti/camera_gray_left'),
@@ -288,7 +288,7 @@ def main():
     ]
 
     if args.kitti_type.find("raw") != -1:
-    
+
         if args.date == None:
             print("Date option is not given. It is mandatory for raw dataset.")
             print("Usage for raw dataset: kitti2bag raw_synced [dir] -t <date> -r <drive>")
@@ -297,7 +297,7 @@ def main():
             print("Drive option is not given. It is mandatory for raw dataset.")
             print("Usage for raw dataset: kitti2bag raw_synced [dir] -t <date> -r <drive>")
             sys.exit(1)
-        
+
         bag = rosbag.Bag("kitti_{}_drive_{}_{}.bag".format(args.date, args.drive, args.kitti_type[4:]), 'w', compression=compression)
         kitti = pykitti.raw(args.dir, args.date, args.drive)
         if not os.path.exists(kitti.data_path):
@@ -346,28 +346,28 @@ def main():
             print("## OVERVIEW ##")
             print(bag)
             bag.close()
-            
+
     elif args.kitti_type.find("odom") != -1:
-        
+
         if args.sequence == None:
             print("Sequence option is not given. It is mandatory for odometry dataset.")
             print("Usage for odometry dataset: kitti2bag {odom_color, odom_gray} [dir] -s <sequence>")
             sys.exit(1)
-            
+
         bag = rosbag.Bag("kitti_data_odometry_{}_sequence_{}.bag".format(args.kitti_type[5:],args.sequence), 'w', compression=compression)
-        
+
         kitti = pykitti.odometry(args.dir, args.sequence)
         if not os.path.exists(kitti.sequence_path):
             print('Path {} does not exists. Exiting.'.format(kitti.sequence_path))
             sys.exit(1)
 
-        kitti.load_calib()         
-        kitti.load_timestamps() 
-             
+        kitti.load_calib()
+        kitti.load_timestamps()
+
         if len(kitti.timestamps) == 0:
             print('Dataset is empty? Exiting.')
             sys.exit(1)
-            
+
         if args.sequence in odometry_sequences[:11]:
             print("Odometry dataset sequence {} has ground truth information (poses).".format(args.sequence))
             kitti.load_poses()
