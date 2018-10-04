@@ -260,18 +260,23 @@ def save_gps_vel_data(bag, kitti, gps_frame_id, topic):
 
 def main():
 
-    parser = argparse.ArgumentParser(description = "Convert KITTI dataset to ROS bag file the easy way!")
+    # Define argument parser to parse KITTI RAW or ODOMETRY datasets
+    parser = argparse.ArgumentParser(description="Convert KITTI dataset to ROS bag file the easy way!")
+
     # Accepted argument values
-    kitti_types = ["raw_synced", "odom_color", "odom_gray"]
+    kitti_types = ["raw_synced", "raw_synced_unrectified" "odom_color", "odom_gray"]
+
+    # Prepare list of odometry sequences
     odometry_sequences = []
     for s in range(22):
         odometry_sequences.append(str(s).zfill(2))
 
-    parser.add_argument("kitti_type", choices = kitti_types, help = "KITTI dataset type")
-    parser.add_argument("dir", nargs = "?", default = os.getcwd(), help = "base directory of the dataset, if no directory passed the deafult is current working directory")
-    parser.add_argument("-t", "--date", help = "date of the raw dataset (i.e. 2011_09_26), option is only for RAW datasets.")
-    parser.add_argument("-r", "--drive", help = "drive number of the raw dataset (i.e. 0001), option is only for RAW datasets.")
-    parser.add_argument("-s", "--sequence", choices = odometry_sequences,help = "sequence of the odometry dataset (between 00 - 21), option is only for ODOMETRY datasets.")
+    # Add arguments to parser object
+    parser.add_argument("kitti_type", choices=kitti_types, help="KITTI dataset type")
+    parser.add_argument("dir", nargs="?", default=os.getcwd(), help="base directory of the dataset, if no directory passed the deafult is current working directory")
+    parser.add_argument("-t", "--date", help="date of the raw dataset (i.e. 2011_09_26), option is only for RAW datasets.")
+    parser.add_argument("-r", "--drive", help="drive number of the raw dataset (i.e. 0001), option is only for RAW datasets.")
+    parser.add_argument("-s", "--sequence", choices=odometry_sequences, help="sequence of the odometry dataset (between 00 - 21), option is only for ODOMETRY datasets.")
     args = parser.parse_args()
 
     bridge = CvBridge()
@@ -287,23 +292,30 @@ def main():
         (3, 'camera_color_right', '/kitti/camera_color_right')
     ]
 
+    # If dataset type is RAW, check the parsed arguments and make the corresponding ROSbag
     if args.kitti_type.find("raw") != -1:
 
+        # Check if the "date" argument is parsed
         if args.date == None:
             print("Date option is not given. It is mandatory for raw dataset.")
             print("Usage for raw dataset: kitti2bag raw_synced [dir] -t <date> -r <drive>")
             sys.exit(1)
-        elif args.drive == None:
+
+        # Check if the "drive" argument is parsed
+        if args.drive == None:
             print("Drive option is not given. It is mandatory for raw dataset.")
             print("Usage for raw dataset: kitti2bag raw_synced [dir] -t <date> -r <drive>")
             sys.exit(1)
 
         bag = rosbag.Bag("kitti_{}_drive_{}_{}.bag".format(args.date, args.drive, args.kitti_type[4:]), 'w', compression=compression)
         kitti = pykitti.raw(args.dir, args.date, args.drive)
+
+        # Check if the path to dataset exists
         if not os.path.exists(kitti.data_path):
             print('Path {} does not exists. Exiting.'.format(kitti.data_path))
             sys.exit(1)
 
+        # Check whether dataset is empty
         if len(kitti.timestamps) == 0:
             print('Dataset is empty? Exiting.')
             sys.exit(1)
@@ -338,25 +350,30 @@ def main():
             save_imu_data(bag, kitti, imu_frame_id, imu_topic)
             save_gps_fix_data(bag, kitti, imu_frame_id, gps_fix_topic)
             save_gps_vel_data(bag, kitti, imu_frame_id, gps_vel_topic)
+
             for camera in cameras:
                 save_camera_data(bag, args.kitti_type, kitti, util, bridge, camera=camera[0], camera_frame_id=camera[1], topic=camera[2], initial_time=None)
             save_velo_data(bag, kitti, velo_frame_id, velo_topic)
 
         finally:
+            # Print the overview of the ROSbag
             print("## OVERVIEW ##")
             print(bag)
             bag.close()
 
+    # If dataset type is ODOMETRY, check the parsed arguments and make the corresponding ROSbag
     elif args.kitti_type.find("odom") != -1:
 
+        # Check if the "sequence" argument is parsed
         if args.sequence == None:
             print("Sequence option is not given. It is mandatory for odometry dataset.")
             print("Usage for odometry dataset: kitti2bag {odom_color, odom_gray} [dir] -s <sequence>")
             sys.exit(1)
 
         bag = rosbag.Bag("kitti_data_odometry_{}_sequence_{}.bag".format(args.kitti_type[5:],args.sequence), 'w', compression=compression)
-
         kitti = pykitti.odometry(args.dir, args.sequence)
+
+        # Check if path to dataset exists
         if not os.path.exists(kitti.sequence_path):
             print('Path {} does not exists. Exiting.'.format(kitti.sequence_path))
             sys.exit(1)
@@ -364,6 +381,7 @@ def main():
         kitti.load_calib()
         kitti.load_timestamps()
 
+        # Check whether dataset is empty
         if len(kitti.timestamps) == 0:
             print('Dataset is empty? Exiting.')
             sys.exit(1)
@@ -375,6 +393,7 @@ def main():
         try:
             util = pykitti.utils.read_calib_file(os.path.join(args.dir,'sequences',args.sequence, 'calib.txt'))
             current_epoch = (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds()
+
             # Export
             if args.kitti_type.find("gray") != -1:
                 used_cameras = cameras[:2]
@@ -386,6 +405,7 @@ def main():
                 save_camera_data(bag, args.kitti_type, kitti, util, bridge, camera=camera[0], camera_frame_id=camera[1], topic=camera[2], initial_time=current_epoch)
 
         finally:
+            # Print the overview of the ROSbag
             print("## OVERVIEW ##")
             print(bag)
             bag.close()
