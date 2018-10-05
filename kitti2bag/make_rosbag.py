@@ -1,5 +1,9 @@
-#!env python
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# TODO:
+# 1. run prepare_sync_unrectified in the main script
+# 2. redefine main() to use kitti2bag as a package and script too
 
 import sys
 
@@ -308,6 +312,11 @@ def main():
             sys.exit(1)
 
         bag = rosbag.Bag("kitti_{}_drive_{}_{}.bag".format(args.date, args.drive, args.kitti_type[4:]), 'w', compression=compression)
+
+        # TODO: Add making of sync_rectified dataset here
+        # if args.kitti_type[4:] == "sync_unrectified":
+            # run prepare_sync_unrectified
+
         kitti = pykitti.raw(args.dir, args.date, args.drive, dataset=args.kitti_type[4:])
 
         # Check if the path to dataset exists

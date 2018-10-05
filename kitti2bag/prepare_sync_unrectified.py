@@ -1,4 +1,8 @@
 #! /usr/bin/env python
+#
+# TODO:
+# 1. Redefine main() function to use as this script as a package and standalone script too
+# 2. Add parser arguments similar to make_rosbag to maintain consistency
 
 # For Py2/3 compatibility
 from __future__ import (absolute_import, division, print_function, unicode_literals)
