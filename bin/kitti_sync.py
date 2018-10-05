@@ -43,8 +43,8 @@ def locateUnsyncedFiles(timestamp_extract_filepath, timestamp_sync_filepath):
 
         return removeFiles
 
-def removeUnsyncedFilesAndSync(extractsync_dirToSync_path, removeFiles):
-    imageDataDir = os.path.join(extractsync_dirToSync_path, 'data')
+def removeUnsyncedFilesAndSync(sync_unrectified_dirToSync_path, removeFiles):
+    imageDataDir = os.path.join(sync_unrectified_dirToSync_path, 'data')
 
     for fname in removeFiles:
         os.remove(os.path.join(imageDataDir, fname))
@@ -71,11 +71,11 @@ def main():
     datadir_basename = os.path.basename(datadir)
     datadir_extract = datadir_basename + "_drive_" + drive + "_extract"
     datadir_sync = datadir_basename + "_drive_" + drive + "_sync"
-    datadir_extractsync = datadir_basename + "_drive_" + drive + "_extractsync"
+    datadir_sync_unrectified = datadir_basename + "_drive_" + drive + "_sync_unrectified"
 
     datadir_extract_path = os.path.join(datadir, datadir_extract)
     datadir_sync_path = os.path.join(datadir, datadir_sync)
-    datadir_extractsync_path = os.path.join(datadir, datadir_extractsync)
+    datadir_sync_unrectified_path = os.path.join(datadir, datadir_sync_unrectified)
 
     if not os.path.isdir(datadir_extract_path):
         # Raise an error and exit
@@ -89,19 +89,19 @@ def main():
     else:
         print("Found directory " + datadir_sync_path)
 
-    # Delete any existing extractsync directory
-    if os.path.isdir(datadir_extractsync_path):
-        print("Removing existing directory " + datadir_extractsync_path)
-        shutil.rmtree(datadir_extractsync_path)
-        os.mkdir(datadir_extractsync_path)
+    # Delete any existing sync_unrectified directory
+    if os.path.isdir(datadir_sync_unrectified_path):
+        print("Removing existing directory " + datadir_sync_unrectified_path)
+        shutil.rmtree(datadir_sync_unrectified_path)
+        os.mkdir(datadir_sync_unrectified_path)
     else:
-        print("No existing extractsync directory found. Creating a new directory")
-        os.mkdir(datadir_extractsync_path)
+        print("No existing sync_unrectified directory found. Creating a new directory")
+        os.mkdir(datadir_sync_unrectified_path)
 
     # Copy directories that remain unchanged from the sync set
-    print("Copying oxts and velodyne_points from sync to extractsync")
-    shutil.copytree(os.path.join(datadir_sync_path, 'oxts'), os.path.join(datadir_extractsync_path, 'oxts'))
-    shutil.copytree(os.path.join(datadir_sync_path, 'velodyne_points'), os.path.join(datadir_extractsync_path, 'velodyne_points'))
+    print("Copying oxts and velodyne_points from sync to sync_unrectified")
+    shutil.copytree(os.path.join(datadir_sync_path, 'oxts'), os.path.join(datadir_sync_unrectified_path, 'oxts'))
+    shutil.copytree(os.path.join(datadir_sync_path, 'velodyne_points'), os.path.join(datadir_sync_unrectified_path, 'velodyne_points'))
 
     dirToSync = ("image_00", "image_01", "image_02", "image_03")
 
@@ -112,11 +112,11 @@ def main():
     for directory in dirToSync:
         timestamp_path = os.path.join(directory, 'timestamps.txt')
 
-        # Copy "directory" from extract set to extractsync set for manipulation
-        shutil.copytree(os.path.join(datadir_extract_path, directory), os.path.join(datadir_extractsync_path, directory))
+        # Copy "directory" from extract set to sync_unrectified set for manipulation
+        shutil.copytree(os.path.join(datadir_extract_path, directory), os.path.join(datadir_sync_unrectified_path, directory))
 
         # Replace the timestamp copied from extract set with sync set
-        shutil.copy2(os.path.join(datadir_sync_path, timestamp_path), os.path.join(datadir_extractsync_path, timestamp_path))
+        shutil.copy2(os.path.join(datadir_sync_path, timestamp_path), os.path.join(datadir_sync_unrectified_path, timestamp_path))
 
         # Get list of unsynced files
         timestamp_extract_filepath = os.path.join(datadir_extract_path, timestamp_path)
@@ -129,7 +129,7 @@ def main():
 #        if userInput.lower() != "y":
 #            sys.exit("Exiting the program based on user input")
 #        else:
-        removeUnsyncedFilesAndSync(os.path.join(datadir_extractsync_path, directory), removeFiles)
+        removeUnsyncedFilesAndSync(os.path.join(datadir_sync_unrectified_path, directory), removeFiles)
 
 
 

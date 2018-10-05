@@ -264,7 +264,7 @@ def main():
     parser = argparse.ArgumentParser(description="Convert KITTI dataset to ROS bag file the easy way!")
 
     # Accepted argument values
-    kitti_types = ["raw_synced", "raw_synced_unrectified" "odom_color", "odom_gray"]
+    kitti_types = ["raw_sync", "raw_sync_unrectified" "odom_color", "odom_gray"]
 
     # Prepare list of odometry sequences
     odometry_sequences = []
