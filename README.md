@@ -32,14 +32,15 @@ pip install kitti2bag
 
 ## How to run it?
 
-One example is better then thousand words so here it is
+An example is better than a thousand words so here it is
 
 ```bash
 $ wget http://kitti.is.tue.mpg.de/kitti/raw_data/2011_09_26_drive_0002/2011_09_26_drive_0002_sync.zip
 $ wget http://kitti.is.tue.mpg.de/kitti/raw_data/2011_09_26_calib.zip
 $ unzip 2011_09_26_drive_0002_sync.zip
 $ unzip 2011_09_26_calib.zip
-$ kitti2bag -t 2011_09_26 -r 0002 raw_synced .
+$ python -m kitti2bag.prepare_sync_unrectified 2011_09_26 0002
+$ python -m kitti2bag.make_rosbag -t 2011_09_26 -r 0002 raw_sync_unrectified .
 Exporting static transformations
 Exporting time dependent transformations
 Exporting IMU
@@ -54,7 +55,7 @@ Exporting camera 3
 Exporting velodyne data
 100% (77 of 77) |##########################| Elapsed Time: 0:00:15 Time: 0:00:15
 ## OVERVIEW ##
-path:        kitti_2011_09_26_drive_0002_synced.bag
+path:        kitti_2011_09_26_drive_0002_sync_unrectified.bag
 version:     2.0
 duration:    7.8s
 start:       Sep 26 2011 13:02:44.33 (1317042164.33)
@@ -69,19 +70,19 @@ types:       geometry_msgs/TwistStamped [98d34b0043a2093cf9d9345ab6eef12e]
              sensor_msgs/NavSatFix      [2d3a8cd499b9b4a0249fb98fd05cfa48]
              sensor_msgs/PointCloud2    [1158d486dd51d683ce2f1be655c3c181]
              tf2_msgs/TFMessage         [94810edda583a504dfda3829e70d7eec]
-topics:      /kitti/camera_color_left/camera_info    77 msgs    : sensor_msgs/CameraInfo    
-             /kitti/camera_color_left/image_raw      77 msgs    : sensor_msgs/Image         
-             /kitti/camera_color_right/camera_info   77 msgs    : sensor_msgs/CameraInfo    
-             /kitti/camera_color_right/image_raw     77 msgs    : sensor_msgs/Image         
-             /kitti/camera_gray_left/camera_info     77 msgs    : sensor_msgs/CameraInfo    
-             /kitti/camera_gray_left/image_raw       77 msgs    : sensor_msgs/Image         
-             /kitti/camera_gray_right/camera_info    77 msgs    : sensor_msgs/CameraInfo    
-             /kitti/camera_gray_right/image_raw      77 msgs    : sensor_msgs/Image         
-             /kitti/oxts/gps/fix                     77 msgs    : sensor_msgs/NavSatFix     
+topics:      /kitti/camera_color_left/camera_info    77 msgs    : sensor_msgs/CameraInfo
+             /kitti/camera_color_left/image_raw      77 msgs    : sensor_msgs/Image
+             /kitti/camera_color_right/camera_info   77 msgs    : sensor_msgs/CameraInfo
+             /kitti/camera_color_right/image_raw     77 msgs    : sensor_msgs/Image
+             /kitti/camera_gray_left/camera_info     77 msgs    : sensor_msgs/CameraInfo
+             /kitti/camera_gray_left/image_raw       77 msgs    : sensor_msgs/Image
+             /kitti/camera_gray_right/camera_info    77 msgs    : sensor_msgs/CameraInfo
+             /kitti/camera_gray_right/image_raw      77 msgs    : sensor_msgs/Image
+             /kitti/oxts/gps/fix                     77 msgs    : sensor_msgs/NavSatFix
              /kitti/oxts/gps/vel                     77 msgs    : geometry_msgs/TwistStamped
-             /kitti/oxts/imu                         77 msgs    : sensor_msgs/Imu           
-             /kitti/velo/pointcloud                  77 msgs    : sensor_msgs/PointCloud2   
-             /tf                                     77 msgs    : tf2_msgs/TFMessage        
+             /kitti/oxts/imu                         77 msgs    : sensor_msgs/Imu
+             /kitti/velo/pointcloud                  77 msgs    : sensor_msgs/PointCloud2
+             /tf                                     77 msgs    : tf2_msgs/TFMessage
              /tf_static                              77 msgs    : tf2_msgs/TFMessage
 ```
 
