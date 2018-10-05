@@ -8,6 +8,9 @@ import sys
 import os
 import shutil
 
+def letUsSee(alpha):
+    print(alpha)
+
 def locateUnsyncedFiles(timestamp_extract_filepath, timestamp_sync_filepath):
     with open(timestamp_extract_filepath, 'r') as ts_extract_f, open(timestamp_sync_filepath, 'r') as ts_sync_f:
         count = -1
