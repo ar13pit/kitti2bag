@@ -308,7 +308,7 @@ def main():
             sys.exit(1)
 
         bag = rosbag.Bag("kitti_{}_drive_{}_{}.bag".format(args.date, args.drive, args.kitti_type[4:]), 'w', compression=compression)
-        kitti = pykitti.raw(args.dir, args.date, args.drive)
+        kitti = pykitti.raw(args.dir, args.date, args.drive, dataset=args.kitti_type[4:])
 
         # Check if the path to dataset exists
         if not os.path.exists(kitti.data_path):
