@@ -290,10 +290,10 @@ def main():
 
     # CAMERAS
     cameras = [
-        (0, 'camera_gray_left', '/kitti/camera_gray_left'),
-        (1, 'camera_gray_right', '/kitti/camera_gray_right'),
-        (2, 'camera_color_left', '/kitti/camera_color_left'),
-        (3, 'camera_color_right', '/kitti/camera_color_right')
+        (0, 'camera_gray_left', '/kitti/camera_gray/left'),
+        (1, 'camera_gray_right', '/kitti/camera_gray/right'),
+        (2, 'camera_color_left', '/kitti/camera_color/left'),
+        (3, 'camera_color_right', '/kitti/camera_color/right')
     ]
 
     # If dataset type is RAW, check the parsed arguments and make the corresponding ROSbag
