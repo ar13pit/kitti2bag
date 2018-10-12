@@ -109,9 +109,9 @@ def main():
 
     dirToSync = ("image_00", "image_01", "image_02", "image_03")
 
-    userInput = input("Do you want to continue? [Y/N]: ")
-    if userInput.lower() != "y":
-        sys.exit("Exiting the program based on user input")
+#    userInput = input("Do you want to continue? [Y/N]: ")
+#    if userInput.lower() != "y":
+#        sys.exit("Exiting the program based on user input")
 
     for directory in dirToSync:
         timestamp_path = os.path.join(directory, 'timestamps.txt')
