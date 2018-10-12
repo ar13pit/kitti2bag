@@ -41,6 +41,7 @@ $ unzip 2011_09_26_drive_0002_sync.zip
 $ unzip 2011_09_26_calib.zip
 $ python -m kitti2bag.prepare_sync_unrectified 2011_09_26 0002
 $ python -m kitti2bag.make_rosbag -t 2011_09_26 -r 0002 raw_sync_unrectified .
+
 Exporting static transformations
 Exporting time dependent transformations
 Exporting IMU
